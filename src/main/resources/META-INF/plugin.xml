@@ -1,0 +1,63 @@
+<idea-plugin>
+    <id>com.smearcursor</id>
+    <name>Smear Cursor</name>
+    <vendor email="support@smearcursor.com" url="https://github.com/sphamba/smear-cursor.nvim">Smear Cursor</vendor>
+
+    <description><![CDATA[
+    <p>Animate the cursor with a smear effect, inspired by Neovide's animated cursor.</p>
+    <p>Creates a smooth, trailing animation when the cursor moves across the editor.</p>
+
+    <h3>Features:</h3>
+    <ul>
+        <li>Smooth cursor animation with spring physics</li>
+        <li>Configurable animation speed and stiffness</li>
+        <li>Color gradient trail effect</li>
+        <li>Optional particle effects</li>
+        <li>Works across all editor windows</li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <p>Enable/disable via Settings → Editor → Smear Cursor, or use the toolbar toggle.</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+    <h3>1.0.0</h3>
+    <ul>
+        <li>Initial release</li>
+        <li>Smear cursor animation with spring physics</li>
+        <li>Configurable settings</li>
+        <li>Particle effects support</li>
+    </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Application Service -->
+        <applicationService
+                serviceImplementation="com.smearcursor.SmearCursorService"/>
+
+        <!-- Settings -->
+        <applicationConfigurable
+                parentId="editor"
+                instance="com.smearcursor.settings.SmearCursorConfigurable"
+                id="com.smearcursor.settings"
+                displayName="Smear Cursor"/>
+
+        <applicationService
+                serviceImplementation="com.smearcursor.settings.SmearCursorSettings"/>
+
+        <!-- Startup Activity -->
+        <postStartupActivity
+                implementation="com.smearcursor.SmearCursorStartupActivity"/>
+    </extensions>
+
+    <actions>
+        <action id="SmearCursor.Toggle"
+                class="com.smearcursor.actions.ToggleSmearCursorAction"
+                text="Toggle Smear Cursor"
+                description="Enable or disable smear cursor animation">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
