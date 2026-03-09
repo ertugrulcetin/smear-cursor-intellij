@@ -23,6 +23,7 @@ class SmearCursorConfigurable : Configurable {
 
     // General settings
     private val enabledCheckbox = JBCheckBox("Enable Smear Cursor")
+    private val smearWhileTypingCheckbox = JBCheckBox("Smear effect while typing")
     private val smearBetweenWindowsCheckbox = JBCheckBox("Smear between windows")
     private val smearBetweenNeighborLinesCheckbox = JBCheckBox("Smear between neighbor lines")
     private val smearHorizontallyCheckbox = JBCheckBox("Smear horizontally")
@@ -62,6 +63,7 @@ class SmearCursorConfigurable : Configurable {
 
         // Load current settings
         enabledCheckbox.isSelected = settings.enabled
+        smearWhileTypingCheckbox.isSelected = settings.smearWhileTyping
         smearBetweenWindowsCheckbox.isSelected = settings.smearBetweenWindows
         smearBetweenNeighborLinesCheckbox.isSelected = settings.smearBetweenNeighborLines
         smearHorizontallyCheckbox.isSelected = settings.smearHorizontally
@@ -86,6 +88,7 @@ class SmearCursorConfigurable : Configurable {
         val generalPanel = createTitledPanel("General Settings") {
             FormBuilder.createFormBuilder()
                 .addComponent(enabledCheckbox)
+                .addComponent(smearWhileTypingCheckbox)
                 .addComponent(smearBetweenWindowsCheckbox)
                 .addComponent(smearBetweenNeighborLinesCheckbox)
                 .addComponent(smearHorizontallyCheckbox)
@@ -164,6 +167,7 @@ class SmearCursorConfigurable : Configurable {
     override fun isModified(): Boolean {
         val settings = SmearCursorSettings.getInstance()
         return enabledCheckbox.isSelected != settings.enabled ||
+                smearWhileTypingCheckbox.isSelected != settings.smearWhileTyping ||
                 smearBetweenWindowsCheckbox.isSelected != settings.smearBetweenWindows ||
                 smearBetweenNeighborLinesCheckbox.isSelected != settings.smearBetweenNeighborLines ||
                 smearHorizontallyCheckbox.isSelected != settings.smearHorizontally ||
@@ -185,6 +189,7 @@ class SmearCursorConfigurable : Configurable {
     override fun apply() {
         val settings = SmearCursorSettings.getInstance()
         settings.enabled = enabledCheckbox.isSelected
+        settings.smearWhileTyping = smearWhileTypingCheckbox.isSelected
         settings.smearBetweenWindows = smearBetweenWindowsCheckbox.isSelected
         settings.smearBetweenNeighborLines = smearBetweenNeighborLinesCheckbox.isSelected
         settings.smearHorizontally = smearHorizontallyCheckbox.isSelected
@@ -209,6 +214,7 @@ class SmearCursorConfigurable : Configurable {
     override fun reset() {
         val settings = SmearCursorSettings.getInstance()
         enabledCheckbox.isSelected = settings.enabled
+        smearWhileTypingCheckbox.isSelected = settings.smearWhileTyping
         smearBetweenWindowsCheckbox.isSelected = settings.smearBetweenWindows
         smearBetweenNeighborLinesCheckbox.isSelected = settings.smearBetweenNeighborLines
         smearHorizontallyCheckbox.isSelected = settings.smearHorizontally

@@ -3,6 +3,8 @@ package com.smearcursor.render
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.CaretEvent
 import com.intellij.openapi.editor.event.CaretListener
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.smearcursor.animation.AnimationEngine
 import com.smearcursor.settings.SmearCursorSettings
 import java.awt.Graphics
@@ -17,7 +19,7 @@ import javax.swing.Timer
  * Overlay component that renders the smear cursor effect on top of the editor.
  * This component is added to the editor's layered pane and handles animation timing.
  */
-class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListener {
+class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListener, DocumentListener {
 
     private val animationEngine = AnimationEngine()
     private val renderer = SmearCursorRenderer()
@@ -28,6 +30,10 @@ class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListen
     // Cursor dimensions
     private var cursorWidth = 2.0
     private var cursorHeight = 16.0
+
+    // Tracks whether the caret moved due to a document change (typing/deletion)
+    @Volatile
+    private var documentJustChanged = false
 
     init {
         isOpaque = false
@@ -48,8 +54,9 @@ class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListen
             lastCaretPosition = caretPos
         }
 
-        // Add caret listener
+        // Add caret listener and document listener
         editor.caretModel.addCaretListener(this)
+        editor.document.addDocumentListener(this)
 
         // Create animation timer with coalescing for better performance
         animationTimer = Timer(SmearCursorSettings.getInstance().timeInterval) {
@@ -99,17 +106,29 @@ class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListen
         }
     }
 
+    // DocumentListener: detect when text is being typed/deleted
+    override fun documentChanged(event: DocumentEvent) {
+        documentJustChanged = true
+    }
+
     override fun caretPositionChanged(event: CaretEvent) {
         if (!enabled) return
 
         val settings = SmearCursorSettings.getInstance()
         if (!settings.enabled) return
 
+        // Capture and reset the typing flag
+        val isTypingChange = documentJustChanged
+        documentJustChanged = false
+
         SwingUtilities.invokeLater {
             val newPosition = getCaretScreenPosition() ?: return@invokeLater
             val oldPosition = lastCaretPosition
 
-            if (oldPosition != null) {
+            // If smear-while-typing is disabled and this caret move was caused by a document change, skip animation
+            val suppressForTyping = isTypingChange && !settings.smearWhileTyping
+
+            if (oldPosition != null && !suppressForTyping) {
                 val dx = kotlin.math.abs(newPosition.x - oldPosition.x)
                 val dy = kotlin.math.abs(newPosition.y - oldPosition.y)
 
@@ -226,6 +245,7 @@ class SmearCursorOverlay(private val editor: Editor) : JComponent(), CaretListen
         animationTimer?.stop()
         animationTimer = null
         editor.caretModel.removeCaretListener(this)
+        editor.document.removeDocumentListener(this)
     }
 
     /**

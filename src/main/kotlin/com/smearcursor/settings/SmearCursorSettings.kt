@@ -19,6 +19,7 @@ class SmearCursorSettings : PersistentStateComponent<SmearCursorSettings> {
 
     // General configuration
     var enabled: Boolean = true
+    var smearWhileTyping: Boolean = false
     var smearBetweenWindows: Boolean = true
     var smearBetweenNeighborLines: Boolean = true
     var minHorizontalDistanceSmear: Int = 0
